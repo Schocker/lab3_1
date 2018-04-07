@@ -3,7 +3,6 @@ package lab3_1;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -44,7 +43,6 @@ public class BookKeeperTest {
 
     private ClientData client;
     private TestTaxPolicy taxPolicy;
-    private Invoice invoice;
     private BookKeeper bookKeeper;
     private InvoiceRequest invoiceRequest;
     
@@ -62,7 +60,7 @@ public class BookKeeperTest {
         Money money = new Money(new BigDecimal(1), Currency.getInstance(Locale.UK));
         RequestItemMock item = new RequestItemMock(product, 1, money);
         invoiceRequest.add(item);
-        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(invoice.getItems().size(), is(1));
     }
        
@@ -76,19 +74,19 @@ public class BookKeeperTest {
         RequestItemMock item2 = new RequestItemMock(product2, 1, money2);
         invoiceRequest.add(item);
         invoiceRequest.add(item2);
-        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(taxPolicy.getNumberOfCalculateTaxMethodCalls(), is(2));
     }
     
     @Test
     public void requestingInvoiceWithoutAnyItemShouldReturnEmptyInvoice() {
-        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(invoice.getItems().size(), is(0));
     }
     
     @Test
     public void requestingInvoiceWithoutAnyItemShouldNotCallCalculateTaxMethod() {
-        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(taxPolicy.getNumberOfCalculateTaxMethodCalls(), is(0));
     }
     
