@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Locale;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
@@ -41,23 +42,32 @@ class TestTaxPolicy implements TaxPolicy {
 
 public class BookKeeperTest {
 
+    private ClientData client;
+    private TestTaxPolicy taxPolicy;
+    private Invoice invoice;
+    private BookKeeper bookKeeper;
+    private InvoiceRequest invoiceRequest;
+    
+    @Before
+    public void setUp() {
+        bookKeeper = new BookKeeper(new InvoiceFactory());
+        client = mock(ClientData.class);
+        invoiceRequest = new InvoiceRequest(client);
+        taxPolicy = new TestTaxPolicy();
+    }
+    
     @Test
     public void requestingInvoiceWithOneItemShouldReturnInvoiceWithOneItem() {
-        ClientData client = mock(ClientData.class);
-        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
         ProductData product = mock(ProductData.class);
         Money money = new Money(new BigDecimal(1), Currency.getInstance(Locale.UK));
         RequestItemMock item = new RequestItemMock(product, 1, money);
         invoiceRequest.add(item);
-        TaxPolicy taxPolicy = new TestTaxPolicy();
         Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
         assertThat(invoice.getItems().size(), is(1));
     }
        
     @Test
     public void requestingInvoiceWithTwoItemsShouldCallCalculateTaxMethodTwoTimes() {
-        ClientData client = mock(ClientData.class);
-        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
         ProductData product = mock(ProductData.class);
         ProductData product2 = mock(ProductData.class);
         Money money = new Money(new BigDecimal(1), Currency.getInstance(Locale.UK));
@@ -66,7 +76,6 @@ public class BookKeeperTest {
         RequestItemMock item2 = new RequestItemMock(product2, 1, money2);
         invoiceRequest.add(item);
         invoiceRequest.add(item2);
-        TestTaxPolicy taxPolicy = new TestTaxPolicy();
         Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
         assertThat(taxPolicy.getNumberOfCalculateTaxMethodCalls(), is(2));
     }
