@@ -25,9 +25,16 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 class TestTaxPolicy implements TaxPolicy {
 
+    private int numberOfCalculateTaxMethodCalls = 0;
+    
     @Override
     public Tax calculateTax(ProductType productType, Money net) {
+        numberOfCalculateTaxMethodCalls++;
         return new Tax(net, "");
+    }
+    
+    public int getNumberOfCalculateTaxMethodCalls() {
+        return numberOfCalculateTaxMethodCalls;
     }
     
 }
@@ -42,8 +49,26 @@ public class BookKeeperTest {
         Money money = new Money(new BigDecimal(1), Currency.getInstance(Locale.UK));
         RequestItemMock item = new RequestItemMock(product, 1, money);
         invoiceRequest.add(item);
-        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, new TestTaxPolicy());
+        TaxPolicy taxPolicy = new TestTaxPolicy();
+        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
         assertThat(invoice.getItems().size(), is(1));
     }
        
+    @Test
+    public void requestingInvoiceWithTwoItemsShouldCallCalculateTaxMethodTwoTimes() {
+        ClientData client = mock(ClientData.class);
+        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
+        ProductData product = mock(ProductData.class);
+        ProductData product2 = mock(ProductData.class);
+        Money money = new Money(new BigDecimal(1), Currency.getInstance(Locale.UK));
+        Money money2 = new Money(new BigDecimal(2), Currency.getInstance(Locale.UK));
+        RequestItemMock item = new RequestItemMock(product, 1, money);
+        RequestItemMock item2 = new RequestItemMock(product2, 1, money2);
+        invoiceRequest.add(item);
+        invoiceRequest.add(item2);
+        TestTaxPolicy taxPolicy = new TestTaxPolicy();
+        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        assertThat(taxPolicy.getNumberOfCalculateTaxMethodCalls(), is(2));
+    }
+    
 }
