@@ -80,4 +80,16 @@ public class BookKeeperTest {
         assertThat(taxPolicy.getNumberOfCalculateTaxMethodCalls(), is(2));
     }
     
+    @Test
+    public void requestingInvoiceWithoutAnyItemShouldReturnEmptyInvoice() {
+        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        assertThat(invoice.getItems().size(), is(0));
+    }
+    
+    @Test
+    public void requestingInvoiceWithoutAnyItemShouldNotCallCalculateTaxMethod() {
+        Invoice invoice = new BookKeeper(new InvoiceFactory()).issuance(invoiceRequest, taxPolicy);
+        assertThat(taxPolicy.getNumberOfCalculateTaxMethodCalls(), is(0));
+    }
+    
 }
