@@ -29,8 +29,6 @@ public class BookKeeperTest {
         taxPolicy = mock( TaxPolicy.class );
         when( taxPolicy.calculateTax( any( ProductType.class ), any( Money.class ) ) )
                 .thenReturn( new Tax( new Money( 1.23 ), "First item Tax" ) );
-        //.thenThrow( new IllegalArgumentException(  ) );
-        //.thenReturn( new Tax( new Money( 1.25 ), "Second item Tax" ) );
     }
 
     @Test
