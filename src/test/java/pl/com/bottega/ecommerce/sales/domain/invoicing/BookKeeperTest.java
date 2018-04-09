@@ -68,4 +68,12 @@ public class BookKeeperTest {
     }
 
 
+    @Test
+    public void emptyInvoiceRequestShouldCallCalculateTexZeroTimes()
+    {
+        Invoice invoice = bookKeeper.issuance( invoiceRequest, taxPolicy );
+
+        verify( taxPolicy, times( 1 ) ).calculateTax( any( ProductType.class ), any( Money.class ) );
+    }
+
 }
