@@ -28,7 +28,7 @@ public class BookKeeperTest {
         price = new Money( 12.3 );
         taxPolicy = mock( TaxPolicy.class );
         when( taxPolicy.calculateTax( any( ProductType.class ), any( Money.class ) ) )
-                .thenReturn( new Tax( new Money( 1.23 ), "First item Tax" ) )
+                .thenReturn( new Tax( new Money( 1.23 ), "First item Tax" ) );
         //.thenThrow( new IllegalArgumentException(  ) );
         //.thenReturn( new Tax( new Money( 1.25 ), "Second item Tax" ) );
     }
@@ -58,5 +58,14 @@ public class BookKeeperTest {
         verify( taxPolicy, times( 2 ) ).calculateTax( any( ProductType.class ), any( Money.class ) );
 
     }
+
+    @Test
+    public void emptyInvoiceRequestShouldReturnInvoiceWithZeroField()
+    {
+        Invoice invoice = bookKeeper.issuance( invoiceRequest, taxPolicy );
+
+        assertThat( invoice.getItems().size(), is( 0 ) );
+    }
+
 
 }
