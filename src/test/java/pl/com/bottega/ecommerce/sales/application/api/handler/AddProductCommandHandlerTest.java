@@ -84,7 +84,7 @@ public class AddProductCommandHandlerTest {
     public void handleMethodShouldCallOneTimeLoadReservation() {
 
         AddProductCommand addProductCommand = new AddProductCommand( new Id( "1" ), new Id( "2" ), 1 );
-        //when( product.isAvailable() ).thenReturn( true );
+        when( product.isAvailable() ).thenReturn( true );
 
         addProductCommandHandler.handle( addProductCommand );
         verify( reservationRepository, times( 1 ) ).load( any( Id.class ) );
