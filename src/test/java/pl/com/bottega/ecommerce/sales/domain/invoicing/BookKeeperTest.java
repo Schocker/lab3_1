@@ -34,6 +34,13 @@ public class BookKeeperTest {
     }
 
     @Test
+    public void emptyInvoiceRequestShouldReturnInvoiceWithZeroField() {
+        Invoice invoice = bookKeeper.issuance( invoiceRequest, taxPolicy );
+
+        assertThat( invoice.getItems().size(), is( 0 ) );
+    }
+
+    @Test
     public void invoiceRequestWithOneFieldShouldReturnInvoiceWithOneField() {
 
         ProductData productData = mock( ProductData.class );
@@ -43,7 +50,13 @@ public class BookKeeperTest {
         Invoice invoice = bookKeeper.issuance( invoiceRequest, taxPolicy );
 
         assertThat( invoice.getItems().size(), is( 1 ) );
+    }
 
+    @Test
+    public void emptyInvoiceRequestShouldCallCalculateTexZeroTimes() {
+        bookKeeper.issuance( invoiceRequest, taxPolicy );
+
+        verify( taxPolicy, times( 0 ) ).calculateTax( any( ProductType.class ), any( Money.class ) );
     }
 
     @Test
@@ -56,24 +69,5 @@ public class BookKeeperTest {
         invoiceRequest.add( requestItem2 );
         bookKeeper.issuance( invoiceRequest, taxPolicy );
         verify( taxPolicy, times( 2 ) ).calculateTax( any( ProductType.class ), any( Money.class ) );
-
     }
-
-    @Test
-    public void emptyInvoiceRequestShouldReturnInvoiceWithZeroField()
-    {
-        Invoice invoice = bookKeeper.issuance( invoiceRequest, taxPolicy );
-
-        assertThat( invoice.getItems().size(), is( 0 ) );
-    }
-
-
-    @Test
-    public void emptyInvoiceRequestShouldCallCalculateTexZeroTimes()
-    {
-        Invoice invoice = bookKeeper.issuance( invoiceRequest, taxPolicy );
-
-        verify( taxPolicy, times( 1 ) ).calculateTax( any( ProductType.class ), any( Money.class ) );
-    }
-
 }
