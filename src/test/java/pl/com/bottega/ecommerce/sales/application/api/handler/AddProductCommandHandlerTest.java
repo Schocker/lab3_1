@@ -28,10 +28,10 @@ public class AddProductCommandHandlerTest {
     ProductRepository productRepository;
     ClientRepository clientRepository;
     SuggestionService suggestionService;
-    SystemContext systemContext = new SystemContext();
     Reservation reservation;
     Product product;
     Client client;
+    Field access;
 
     @Before
     public void setUp() throws Exception {
@@ -45,21 +45,21 @@ public class AddProductCommandHandlerTest {
         client = mock( Client.class );
 
         try {
-            Field reservationRepositoryField = AddProductCommandHandler.class.getDeclaredField( "reservationRepository" );
-            reservationRepositoryField.setAccessible( true );
-            reservationRepositoryField.set( addProductCommandHandler, reservationRepository );
+            access = AddProductCommandHandler.class.getDeclaredField( "reservationRepository" );
+            access.setAccessible( true );
+            access.set( addProductCommandHandler, reservationRepository );
 
-            Field productRepositoryField = AddProductCommandHandler.class.getDeclaredField( "productRepository" );
-            productRepositoryField.setAccessible( true );
-            productRepositoryField.set( addProductCommandHandler, productRepository );
+            access = AddProductCommandHandler.class.getDeclaredField( "productRepository" );
+            access.setAccessible( true );
+            access.set( addProductCommandHandler, productRepository );
 
-            Field clientRepositoryField = AddProductCommandHandler.class.getDeclaredField( "clientRepository" );
-            clientRepositoryField.setAccessible( true );
-            clientRepositoryField.set( addProductCommandHandler, clientRepository );
+            access = AddProductCommandHandler.class.getDeclaredField( "clientRepository" );
+            access.setAccessible( true );
+            access.set( addProductCommandHandler, clientRepository );
 
-            Field suggestionServiceField = AddProductCommandHandler.class.getDeclaredField( "suggestionService" );
-            suggestionServiceField.setAccessible( true );
-            suggestionServiceField.set( addProductCommandHandler, suggestionService );
+            access = AddProductCommandHandler.class.getDeclaredField( "suggestionService" );
+            access.setAccessible( true );
+            access.set( addProductCommandHandler, suggestionService );
 
         } catch (Exception e) {
             e.printStackTrace();
