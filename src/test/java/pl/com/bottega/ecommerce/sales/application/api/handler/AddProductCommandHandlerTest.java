@@ -20,6 +20,7 @@ import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation;
 import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
+import pl.com.bottega.ecommerce.system.application.SystemContext;
 
 import java.util.Date;
 
@@ -41,8 +42,8 @@ public class AddProductCommandHandlerTest {
     private ProductRepository productRepositoryMock;
     @Mock
     private SuggestionService suggestionServiceMock;
-    @Mock
-    private ClientRepository clientRepositoryMock;
+
+
     private Product product;
     private int quantity = 10;
     private Reservation reservation;
@@ -62,9 +63,24 @@ public class AddProductCommandHandlerTest {
         product = new Product(Id.generate(), new Money(10), "test product name", ProductType.FOOD);
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
 
+
+        ClientRepository clientRepository = new ClientRepository() {
+            @Override
+            public Client load(Id id) {
+                return new Client();
+            }
+
+            @Override
+            public void save(Client client) {
+            }
+
+        };
+
         Whitebox.setInternalState(handler, "reservationRepository", reservationRepositoryMock);
         Whitebox.setInternalState(handler, "productRepository", productRepositoryMock);
         Whitebox.setInternalState(handler, "suggestionService", suggestionServiceMock);
+        Whitebox.setInternalState(handler, "clientRepository", clientRepository);
+        Whitebox.setInternalState(handler, "systemContext", new SystemContext());
     }
 
     @Test
@@ -108,10 +124,30 @@ public class AddProductCommandHandlerTest {
         verify(reservationRepositoryMock, times(1)).save(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue(), is(reservation));
     }
+
+    @Test
+    public void handleShouldCallSuggestEquivalentWhenProductNotAvailable() {
+        product.markAsRemoved();
+        Product equivalentProduct = new Product(Id.generate(), new Money(15),
+                                                "test equivalent name", ProductType.STANDARD);
+        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).
+                                                    thenReturn(equivalentProduct);
+
+        handler.handle(command);
+
+        ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(suggestionServiceMock, times(1)).
+                                    suggestEquivalent(argumentCaptor.capture(), any(Client.class));
+        assertThat(argumentCaptor.getValue(), is(product));
+    }
+
+    @Test
+    public void handleShouldNotCallSuggestEquivalentWhenProductIsAvailable() {
+        handler.handle(command);
+
+        verify(suggestionServiceMock, never()).
+                                    suggestEquivalent(any(Product.class), any(Client.class));
+    }
 }
 
-//if not available
-//should call suggestEquiv
-
-//should not call them when available
 
