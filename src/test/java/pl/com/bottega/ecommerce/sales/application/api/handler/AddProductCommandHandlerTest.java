@@ -34,7 +34,6 @@ public class AddProductCommandHandlerTest {
     private SystemContext systemContext;
     private Reservation reservation;
     private Product product;
-    private Client client;
     private Field field;
     
     @Before
@@ -46,7 +45,6 @@ public class AddProductCommandHandlerTest {
         systemContext = new SystemContext();
         product = mock(Product.class);
         reservation = mock(Reservation.class);
-        client = mock(Client.class);
         addProductCommandHandler = new AddProductCommandHandler();
         try {
             field = AddProductCommandHandler.class.getDeclaredField("reservationRepository");
@@ -69,7 +67,7 @@ public class AddProductCommandHandlerTest {
         }
         when(reservationRepository.load(any(Id.class))).thenReturn(reservation);
         when(productRepository.load(any(Id.class))).thenReturn(product);
-        when(clientRepository.load(any(Id.class))).thenReturn(client);
+        when(clientRepository.load(any(Id.class))).thenReturn(new Client());
         when(suggestionService.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(product);
     }
     
