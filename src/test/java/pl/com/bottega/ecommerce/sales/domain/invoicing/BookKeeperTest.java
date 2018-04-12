@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
+import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.BookKeeper;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.Invoice;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceFactory;
@@ -23,6 +24,7 @@ import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceRequest;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.Tax;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.TaxPolicy;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductDataBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
@@ -37,7 +39,7 @@ public class BookKeeperTest {
     @Before
     public void setUp() {
         bookKeeper = new BookKeeper(new InvoiceFactory());
-        client = mock(ClientData.class);
+        client = new Client().generateSnapshot();
         invoiceRequest = new InvoiceRequest(client);
         taxPolicy = mock(TaxPolicy.class);
         money = new Money(new BigDecimal(1), Currency.getInstance(Locale.UK));
@@ -46,8 +48,15 @@ public class BookKeeperTest {
     
     @Test
     public void requestingInvoiceWithOneItemShouldReturnInvoiceWithOneItem() {
-        ProductData product = mock(ProductData.class);
-        RequestItem item = new RequestItem(product, 1, money);
+        ProductData product = ProductDataBuilder.productData()
+                .withMoney(money)
+                .withName("test")
+                .build();
+        RequestItem item = RequestItemBuilder.requestItem()
+                .withProductData(product)
+                .withQuantity(1)
+                .withTotalCost(money)
+                .build();
         invoiceRequest.add(item);
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(invoice.getItems().size(), is(1));
@@ -55,10 +64,24 @@ public class BookKeeperTest {
        
     @Test
     public void requestingInvoiceWithTwoItemsShouldCallCalculateTaxMethodTwoTimes() {
-        ProductData product = mock(ProductData.class);
-        ProductData product2 = mock(ProductData.class);
-        RequestItem item = new RequestItem(product, 1, money);
-        RequestItem item2 = new RequestItem(product2, 1, money);
+        ProductData product = ProductDataBuilder.productData()
+                .withMoney(money)
+                .withName("test")
+                .build();
+        ProductData product2 = ProductDataBuilder.productData()
+                .withMoney(money)
+                .withName("test2")
+                .build();
+        RequestItem item = RequestItemBuilder.requestItem()
+                .withProductData(product)
+                .withQuantity(1)
+                .withTotalCost(money)
+                .build();
+        RequestItem item2 = RequestItemBuilder.requestItem()
+                .withProductData(product2)
+                .withQuantity(1)
+                .withTotalCost(money)
+                .build();
         invoiceRequest.add(item);
         invoiceRequest.add(item2);
         bookKeeper.issuance(invoiceRequest, taxPolicy);
