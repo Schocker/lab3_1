@@ -55,6 +55,19 @@ public class BookKeeperTest {
     }
 
     @Test
+    public void issuanceShouldReturnEmptyInvoiceWhenZeroPositionRequestGiven() {
+        TaxPolicy taxPolicy = new TaxPolicy() {
+            @Override
+            public Tax calculateTax(ProductType productType, Money net) {
+                return new Tax(new Money(5), "test tax");
+            }
+        };
+
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        assertThat(invoice.getItems().size(), is(0));
+    }
+
+    @Test
     public void issuanceShouldCallTaxPolicyTwiceWhenTwoPositionRequestGiven() {
         TaxPolicy taxPolicyMock = mock(TaxPolicy.class);
 
@@ -80,5 +93,19 @@ public class BookKeeperTest {
         List<Money> capturedArgumentMoney = argumentCaptorMoney.getAllValues();
         assertThat(capturedArgumentMoney.get(0), is(new Money(100)));
         assertThat(capturedArgumentMoney.get(1), is(new Money(150)));
+    }
+
+    @Test
+    public void issuanceShouldNotCallTaxPolicyWhenZeroRequestGiven() {
+        TaxPolicy taxPolicyMock = mock(TaxPolicy.class);
+
+        when(taxPolicyMock.calculateTax(
+                Mockito.any(ProductType.class), Mockito.any(Money.class))).
+                thenReturn(new Tax(new Money(5), "test tax"));
+
+        bookKeeper.issuance(invoiceRequest, taxPolicyMock);
+
+        verify(taxPolicyMock,  never()).
+                calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
     }
 }
