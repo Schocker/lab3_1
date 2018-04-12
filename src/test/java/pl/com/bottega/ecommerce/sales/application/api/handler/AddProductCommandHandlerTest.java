@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
+import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.client.ClientRepository;
 import pl.com.bottega.ecommerce.sales.domain.equivalent.SuggestionService;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
@@ -25,9 +26,7 @@ import java.util.Date;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddProductCommandHandlerTest {
@@ -44,25 +43,28 @@ public class AddProductCommandHandlerTest {
     private SuggestionService suggestionServiceMock;
     @Mock
     private ClientRepository clientRepositoryMock;
+    private Product product;
+    private int quantity = 10;
+    private Reservation reservation;
 
     @Before
     public void setUp() {
         handler = new AddProductCommandHandler();
         orderId = Id.generate();
         productId = Id.generate();
-        command = new AddProductCommand(orderId, productId, 10);
+        command = new AddProductCommand(orderId, productId, quantity);
 
-        Reservation reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED,
-                                                new ClientData(Id.generate(), "Test Client"), new Date());
+        reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED,
+                new ClientData(Id.generate(), "Test Client"), new Date());
         when(reservationRepositoryMock.load(any(Id.class))).thenReturn(reservation);
 
 
-        Product product = new Product(Id.generate(), new Money(10),
-                                    "test product name", ProductType.FOOD);
+        product = new Product(Id.generate(), new Money(10), "test product name", ProductType.FOOD);
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
 
         Whitebox.setInternalState(handler, "reservationRepository", reservationRepositoryMock);
         Whitebox.setInternalState(handler, "productRepository", productRepositoryMock);
+        Whitebox.setInternalState(handler, "suggestionService", suggestionServiceMock);
     }
 
     @Test
@@ -83,14 +85,33 @@ public class AddProductCommandHandlerTest {
         assertThat(argumentCaptor.getValue(), is(command.getProductId()));
     }
 
+    @Test
+    public void handleShouldCallReservationAdd() {
+        Reservation reservationMock = mock(Reservation.class);
+        when(reservationRepositoryMock.load(any(Id.class))).thenReturn(reservationMock);
+
+        handler.handle(command);
+
+        ArgumentCaptor<Product> argumentCaptorProduct = ArgumentCaptor.forClass(Product.class);
+        ArgumentCaptor<Integer> argumentCaptorQuantity = ArgumentCaptor.forClass(Integer.class);
+        verify(reservationMock, times(1)).
+                add(argumentCaptorProduct.capture(), argumentCaptorQuantity.capture());
+        assertThat(argumentCaptorProduct.getValue(), is(product));
+        assertThat(argumentCaptorQuantity.getValue(), is(quantity));
+    }
+
+    @Test
+    public void handleShouldCallReservationRepositorySave() {
+        handler.handle(command);
+
+        ArgumentCaptor<Reservation> argumentCaptor = ArgumentCaptor.forClass(Reservation.class);
+        verify(reservationRepositoryMock, times(1)).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), is(reservation));
+    }
 }
 
-//should call reservation (mock).add
-//should call repo.save
-
 //if not available
-    //should call loadclient
-    //should call suggestEquiv
+//should call suggestEquiv
 
 //should not call them when available
 
