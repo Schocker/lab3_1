@@ -22,7 +22,8 @@ public class BookKeeperTest {
     private RequestItem requestItemOne;
     private BookKeeper bookKeeper;
     private InvoiceRequest invoiceRequest;
-    private RequestItem requestItemTwo;
+    TaxPolicy taxPolicyMock;
+    TaxPolicy taxPolicy;
 
     @Before
     public void setUp() {
@@ -32,21 +33,20 @@ public class BookKeeperTest {
                 ProductType.FOOD, new Date());
         requestItemOne = new RequestItem(productDataOne, 10, new Money(100));
 
-        ProductData productDataTwo = new ProductData(Id.generate(), new Money(50), "product name two",
-                ProductType.DRUG, new Date());
-        requestItemTwo = new RequestItem(productDataTwo, 3, new Money(150));
-
         invoiceRequest = new InvoiceRequest(new ClientData(Id.generate(), "test client"));
-    }
 
-    @Test
-    public void issuanceShouldReturnInvoiceWithOnePositionWhenOnePositionRequestGiven() {
-        TaxPolicy taxPolicy = new TaxPolicy() {
+        taxPolicy = new TaxPolicy() {
             @Override
             public Tax calculateTax(ProductType productType, Money net) {
                 return new Tax(new Money(5), "test tax");
             }
         };
+
+        taxPolicyMock = mock(TaxPolicy.class);
+    }
+
+    @Test
+    public void issuanceShouldReturnInvoiceWithOnePositionWhenOnePositionRequestGiven() {
 
         invoiceRequest.add(requestItemOne);
 
@@ -56,12 +56,6 @@ public class BookKeeperTest {
 
     @Test
     public void issuanceShouldReturnEmptyInvoiceWhenZeroPositionRequestGiven() {
-        TaxPolicy taxPolicy = new TaxPolicy() {
-            @Override
-            public Tax calculateTax(ProductType productType, Money net) {
-                return new Tax(new Money(5), "test tax");
-            }
-        };
 
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertThat(invoice.getItems().size(), is(0));
@@ -69,7 +63,9 @@ public class BookKeeperTest {
 
     @Test
     public void issuanceShouldCallTaxPolicyTwiceWhenTwoPositionRequestGiven() {
-        TaxPolicy taxPolicyMock = mock(TaxPolicy.class);
+        ProductData productDataTwo = new ProductData(Id.generate(), new Money(50), "product name two",
+                ProductType.DRUG, new Date());
+        RequestItem requestItemTwo = new RequestItem(productDataTwo, 3, new Money(150));
 
         invoiceRequest.add(requestItemOne);
         invoiceRequest.add(requestItemTwo);
@@ -97,7 +93,6 @@ public class BookKeeperTest {
 
     @Test
     public void issuanceShouldNotCallTaxPolicyWhenZeroRequestGiven() {
-        TaxPolicy taxPolicyMock = mock(TaxPolicy.class);
 
         when(taxPolicyMock.calculateTax(
                 Mockito.any(ProductType.class), Mockito.any(Money.class))).
