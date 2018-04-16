@@ -52,14 +52,14 @@ public class BookKeeperTest {
     }
 
     @Test
-    public void emptyInvoiceRequestShouldCallCalculateTexZeroTimes() {
+    public void emptyInvoiceRequestShouldCallCalculateTaxZeroTimes() {
         bookKeeper.issuance( invoiceRequest, taxPolicy );
 
         verify( taxPolicy, times( 0 ) ).calculateTax( any( ProductType.class ), any( Money.class ) );
     }
 
     @Test
-    public void invoiceRequestWithTwoFieldShouldCallCalculateTexTwoTimes() {
+    public void invoiceRequestWithTwoFieldShouldCallCalculateTaxTwoTimes() {
         ProductData productData1 = mock( ProductData.class );
         ProductData productData2 = mock( ProductData.class );
         RequestItem requestItem1 = new RequestItem( productData1, 1, price );
