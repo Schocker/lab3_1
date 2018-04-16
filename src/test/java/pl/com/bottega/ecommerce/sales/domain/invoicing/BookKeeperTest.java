@@ -3,6 +3,7 @@ package pl.com.bottega.ecommerce.sales.domain.invoicing;
 import org.junit.Before;
 import org.junit.Test;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
+import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
@@ -23,7 +24,7 @@ public class BookKeeperTest {
     @Before
     public void setUp() throws Exception {
         bookKeeper = new BookKeeper( new InvoiceFactory() );
-        clientData = mock( ClientData.class );
+        clientData = new ClientData( Id.generate(),"name" );
         invoiceRequest = new InvoiceRequest( clientData );
         price = new Money( 12.3 );
         taxPolicy = mock( TaxPolicy.class );
