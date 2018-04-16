@@ -6,6 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
+import pl.com.bottega.ecommerce.sales.ProductDataBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
@@ -24,13 +25,14 @@ public class BookKeeperTest {
     private InvoiceRequest invoiceRequest;
     TaxPolicy taxPolicyMock;
     TaxPolicy taxPolicy;
+    private ProductDataBuilder builder;
 
     @Before
     public void setUp() {
         bookKeeper = new BookKeeper(new InvoiceFactory());
 
-        ProductData productDataOne = new ProductData(Id.generate(), new Money(10), "product name one",
-                ProductType.FOOD, new Date());
+        builder = new ProductDataBuilder();
+        ProductData productDataOne = builder.withType(ProductType.FOOD).build();
         requestItemOne = new RequestItem(productDataOne, 10, new Money(100));
 
         invoiceRequest = new InvoiceRequest(new ClientData(Id.generate(), "test client"));
@@ -63,8 +65,7 @@ public class BookKeeperTest {
 
     @Test
     public void issuanceShouldCallTaxPolicyTwiceWhenTwoPositionRequestGiven() {
-        ProductData productDataTwo = new ProductData(Id.generate(), new Money(50), "product name two",
-                ProductType.DRUG, new Date());
+        ProductData productDataTwo = builder.withType(ProductType.DRUG).build();
         RequestItem requestItemTwo = new RequestItem(productDataTwo, 3, new Money(150));
 
         invoiceRequest.add(requestItemOne);
