@@ -3,10 +3,14 @@ package pl.com.bottega.ecommerce.sales.domain.invoicing;
 import org.junit.Before;
 import org.junit.Test;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
+import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientDataBuilder;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductDataBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
+
+import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -24,7 +28,10 @@ public class BookKeeperTest {
     @Before
     public void setUp() throws Exception {
         bookKeeper = new BookKeeper( new InvoiceFactory() );
-        clientData = new ClientData( Id.generate(),"name" );
+        clientData = new ClientDataBuilder()
+                .withId( Id.generate() )
+                .withName( "client" )
+                .build();
         invoiceRequest = new InvoiceRequest( clientData );
         price = new Money( 12.3 );
         taxPolicy = mock( TaxPolicy.class );
@@ -42,7 +49,13 @@ public class BookKeeperTest {
     @Test
     public void invoiceRequestWithOneFieldShouldReturnInvoiceWithOneField() {
 
-        ProductData productData = mock( ProductData.class );
+        ProductData productData = new ProductDataBuilder()
+                .withId( Id.generate() )
+                .withName( "product" )
+                .withPrice( new Money( 12.3 ) )
+                .withSnapshotDate( new Date( 1 ) )
+                .withType( ProductType.FOOD )
+                .build();
         RequestItem requestItem = new RequestItem( productData, 1, price );
 
         invoiceRequest.add( requestItem );
@@ -60,8 +73,20 @@ public class BookKeeperTest {
 
     @Test
     public void invoiceRequestWithTwoFieldShouldCallCalculateTaxTwoTimes() {
-        ProductData productData1 = mock( ProductData.class );
-        ProductData productData2 = mock( ProductData.class );
+        ProductData productData1 = new ProductDataBuilder()
+                .withId( Id.generate() )
+                .withName( "product1" )
+                .withPrice( new Money( 12.3 ) )
+                .withSnapshotDate( new Date( 1 ) )
+                .withType( ProductType.FOOD )
+                .build();
+        ProductData productData2 = new ProductDataBuilder()
+                .withId( Id.generate() )
+                .withName( "product2" )
+                .withPrice( new Money( 12.3 ) )
+                .withSnapshotDate( new Date( 1 ) )
+                .withType( ProductType.FOOD )
+                .build();
         RequestItem requestItem1 = new RequestItem( productData1, 1, price );
         RequestItem requestItem2 = new RequestItem( productData2, 2, price );
         invoiceRequest.add( requestItem1 );

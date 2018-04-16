@@ -8,9 +8,12 @@ import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.client.ClientRepository;
 import pl.com.bottega.ecommerce.sales.domain.equivalent.SuggestionService;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductRepository;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation;
 import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
+import pl.com.bottega.ecommerce.sharedkernel.Money;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
 
 import java.lang.reflect.Field;
@@ -41,7 +44,12 @@ public class AddProductCommandHandlerTest {
         systemContext = new SystemContext();
         suggestionService = mock( SuggestionService.class );
         reservation = mock( Reservation.class );
-        product = mock( Product.class );
+        product = new ProductBuilder()
+                .withId( Id.generate() )
+                .withName( "product" )
+                .withPrice( new Money( 12.3 ) )
+                .withProductType( ProductType.FOOD )
+                .build();
         client = mock( Client.class );
 
         try {
@@ -74,11 +82,11 @@ public class AddProductCommandHandlerTest {
         when( clientRepository.load( any( Id.class ) ) ).thenReturn( client );
         when( suggestionService.suggestEquivalent( any( Product.class ), any( Client.class ) ) ).thenReturn( product );
     }
+
     @Test
     public void handleMethodShouldCallOneTimeLoadReservation() {
 
         AddProductCommand addProductCommand = new AddProductCommand( new Id( "1" ), new Id( "2" ), 1 );
-        when( product.isAvailable() ).thenReturn( true );
 
         addProductCommandHandler.handle( addProductCommand );
         verify( reservationRepository, times( 1 ) ).load( any( Id.class ) );
@@ -88,16 +96,6 @@ public class AddProductCommandHandlerTest {
     public void handleMethodShouldCallOneTimeSaveReservation() {
 
         AddProductCommand addProductCommand = new AddProductCommand( new Id( "1" ), new Id( "2" ), 1 );
-        when( product.isAvailable() ).thenReturn( true );
-
-        addProductCommandHandler.handle( addProductCommand );
-        verify( reservationRepository, times( 1 ) ).save( any( Reservation.class ) );
-    }
-    @Test
-    public void handleMethodWhenProductIsUnavailableShouldCallOneTimeSaveReservation(){
-
-        AddProductCommand addProductCommand = new AddProductCommand( new Id( "1" ), new Id( "2" ), 2 );
-        when( product.isAvailable() ).thenReturn( false );
 
         addProductCommandHandler.handle( addProductCommand );
         verify( reservationRepository, times( 1 ) ).save( any( Reservation.class ) );
