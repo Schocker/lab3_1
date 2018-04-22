@@ -2,6 +2,7 @@ package lab3_1;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -35,6 +36,7 @@ public class BookKeeperTests {
 	private TaxPolicy mockedTaxPolicy;
 	private InvoiceRequest invoiceRequest;
 	private ProductData productData;
+	private ProductData productData2;
 		
 	@Before
 	public void setUp() throws Exception {
@@ -44,6 +46,7 @@ public class BookKeeperTests {
 		Money moneyEUR = new Money(125.0);
 		Date snapshotDate = new Date();
 		productData = new ProductData(Id.generate(), moneyEUR, "Kartofel", ProductType.FOOD, snapshotDate);
+		productData2 = new ProductData(Id.generate(), moneyEUR, "Marchewka", ProductType.FOOD, snapshotDate);
 	}
 
 	@Test
@@ -64,6 +67,20 @@ public class BookKeeperTests {
 		bookKeeper.issuance(invoiceRequest, mockedTaxPolicy);		
 		verify(mockedTaxPolicy, times(2)).calculateTax(productData.getType(), productData.getPrice());
 	}
+	
+	@Test
+	public void invoiceRequestWithTwoItemsShouldReturnInvoiceWithTwoDifferentItems() {		
+		when(mockedTaxPolicy.calculateTax(productData.getType(), productData.getPrice())).thenReturn(new Tax(new Money(0.50), "Fake"));
+		when(mockedTaxPolicy.calculateTax(productData2.getType(), productData2.getPrice())).thenReturn(new Tax(new Money(0.75), "Fake"));		 
+		RequestItem requestItem = new RequestItem(productData, 5, productData.getPrice());
+		invoiceRequest.add(requestItem);
+		requestItem = new RequestItem(productData2, 4, productData2.getPrice());
+		invoiceRequest.add(requestItem);				
+		Invoice invoice = bookKeeper.issuance(invoiceRequest, mockedTaxPolicy);		
+		assertThat(invoice.getItems().get(0).getProduct(), is(not(invoice.getItems().get(1).getProduct())));
+	}
+	
+	
 	
 	@Test
 	public void bookKeeperBehaviourTest() {
