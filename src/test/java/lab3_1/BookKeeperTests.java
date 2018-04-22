@@ -37,6 +37,7 @@ public class BookKeeperTests {
 	private InvoiceRequest invoiceRequest;
 	private ProductData productData;
 	private ProductData productData2;
+	private ProductDataBuilder productDataBuilder = new ProductDataBuilder();
 		
 	@Before
 	public void setUp() throws Exception {
@@ -45,8 +46,8 @@ public class BookKeeperTests {
 		invoiceRequest = new InvoiceRequest(new ClientData(Id.generate(), "John Doe"));
 		Money moneyEUR = new Money(125.0);
 		Date snapshotDate = new Date();
-		productData = new ProductData(Id.generate(), moneyEUR, "Kartofel", ProductType.FOOD, snapshotDate);
-		productData2 = new ProductData(Id.generate(), moneyEUR, "Marchewka", ProductType.FOOD, snapshotDate);
+		productData = new ProductDataBuilder().withName("Kartofel").build();
+		productData2 = new ProductDataBuilder().withName("Marchewka").build();
 	}
 
 	@Test
