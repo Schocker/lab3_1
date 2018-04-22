@@ -20,22 +20,21 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class BookKeeperTest {
-    InvoiceFactory invoiceFactory;
-    BookKeeper bookKeeper;
-    ProductData productData;
-    ClientData clientData;
-    InvoiceRequest invoiceRequest;
-    TaxPolicy taxPolicy;
-    RequestItem requestItem;
+    private BookKeeper bookKeeper;
+    private ProductData productData;
+    private InvoiceRequest invoiceRequest;
+    private TaxPolicy taxPolicy;
+    private RequestItem requestItem;
 
     @Before
     public void setUp() throws Exception {
-        invoiceFactory = mock(InvoiceFactory.class);
+        InvoiceFactory invoiceFactory = mock(InvoiceFactory.class);
         when(invoiceFactory.create(any(ClientData.class))).thenReturn(new Invoice(Id.generate(), new ClientData(Id.generate(), "Test")));
+
+        ClientData clientData = new ClientData(Id.generate(), "Test");
 
         bookKeeper = new BookKeeper(invoiceFactory);
         productData = new ProductData(Id.generate(), new Money(1), "Test", ProductType.STANDARD, new Date());
-        clientData = new ClientData(Id.generate(), "Test");
         invoiceRequest = new InvoiceRequest(clientData);
 
         taxPolicy = mock(TaxPolicy.class);
@@ -66,14 +65,12 @@ public class BookKeeperTest {
 
     @Test
     public void invoiceRequestWithNoItemsShouldReturnEmptyInvoice() {
-        Invoice issuedInvoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
-
-        assertThat(issuedInvoice.getItems().size(), is(0));
+        assertThat(bookKeeper.issuance(invoiceRequest, taxPolicy).getItems().size(), is(0));
     }
 
     @Test
     public void invoiceRequestWithNoItemsShouldNotInvokeCalculateTaxMethod() {
-        Invoice issuedInvoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
 
         verify(taxPolicy, times(0)).calculateTax(Mockito.<ProductType>any(), Mockito.<Money>any());
     }
