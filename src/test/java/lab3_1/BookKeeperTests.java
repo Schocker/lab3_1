@@ -1,12 +1,16 @@
 package lab3_1;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +46,11 @@ public class BookKeeperTests {
 
 	@Test
 	public void requestingOneInvoiceShouldReturnInvoiceWithOnePosition() {
-		bookKeeper.issuance(invoiceRequest, mockedTaxPolicy);
+		when(mockedTaxPolicy.calculateTax(productData.getType(), productData.getPrice())).thenReturn(new Tax(new Money(0.50), "Item Tax"));		 
+		RequestItem requestItem = new RequestItem(productData, 5, productData.getPrice());
+		invoiceRequest.add(requestItem);		
+		Invoice invoice = bookKeeper.issuance(invoiceRequest, mockedTaxPolicy);		
+		assertThat(invoice.getItems().size(), is(equalTo(1)));
 	}
 	
 	@Test
