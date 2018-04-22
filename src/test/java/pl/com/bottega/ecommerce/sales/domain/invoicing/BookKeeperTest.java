@@ -65,9 +65,16 @@ public class BookKeeperTest {
     }
 
     @Test
-    public void invoiceRequestWithNoItemShouldReturnEmptyInvoice() {
+    public void invoiceRequestWithNoItemsShouldReturnEmptyInvoice() {
         Invoice issuedInvoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
 
         assertThat(issuedInvoice.getItems().size(), is(0));
+    }
+
+    @Test
+    public void invoiceRequestWithNoItemsShouldNotInvokeCalculateTaxMethod() {
+        Invoice issuedInvoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        verify(taxPolicy, times(0)).calculateTax(Mockito.<ProductType>any(), Mockito.<Money>any());
     }
 }
