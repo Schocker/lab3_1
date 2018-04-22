@@ -70,21 +70,21 @@ public class BookKeeperTests {
 	
 	@Test
 	public void invoiceRequestWithTwoItemsShouldReturnInvoiceWithTwoDifferentItems() {		
-		when(mockedTaxPolicy.calculateTax(productData.getType(), productData.getPrice())).thenReturn(new Tax(new Money(0.50), "Fake"));
-		when(mockedTaxPolicy.calculateTax(productData2.getType(), productData2.getPrice())).thenReturn(new Tax(new Money(0.75), "Fake"));		 
+		when(mockedTaxPolicy.calculateTax(productData.getType(), productData.getPrice())).thenReturn(new Tax(new Money(0.50), "Item Tax"));
+		when(mockedTaxPolicy.calculateTax(productData2.getType(), productData2.getPrice())).thenReturn(new Tax(new Money(0.75), "Item Tax"));		 
 		RequestItem requestItem = new RequestItem(productData, 5, productData.getPrice());
 		invoiceRequest.add(requestItem);
 		requestItem = new RequestItem(productData2, 4, productData2.getPrice());
 		invoiceRequest.add(requestItem);				
 		Invoice invoice = bookKeeper.issuance(invoiceRequest, mockedTaxPolicy);		
 		assertThat(invoice.getItems().get(0).getProduct(), is(not(invoice.getItems().get(1).getProduct())));
-	}
-	
-	
+	}	
 	
 	@Test
-	public void bookKeeperBehaviourTest() {
-		fail("Not yet implemented");
+	public void invoiceRequestWithoutItemsShouldNotUseCalculateTaxMethod() {		
+		when(mockedTaxPolicy.calculateTax(productData.getType(), productData.getPrice())).thenReturn(new Tax(new Money(5), "Item Tax"));		
+		bookKeeper.issuance(invoiceRequest, mockedTaxPolicy);				
+		verify(mockedTaxPolicy, times(0)).calculateTax(productData.getType(), productData.getPrice());
 	}
 
 }
