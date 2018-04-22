@@ -1,14 +1,20 @@
 package lab3_1;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -39,7 +45,7 @@ public class AddProductCommandHandlerTests {
 	private AddProductCommand addProductCommand;
 	private AddProductCommandHandler addProductCommandHandler;
 	private Reservation reservation;
-	private Product product;
+	private Product availableProduct, unavailableProduct;
 	private ClientData clientData;
 	private Client client;
 	private Date date;
@@ -51,12 +57,13 @@ public class AddProductCommandHandlerTests {
 		mockedSuggestionService = mock(SuggestionService.class);
 		mockedClientRepository = mock(ClientRepository.class);
 		addProductCommandHandler = new AddProductCommandHandler();
+		availableProduct = new Product(Id.generate(), new Money(50.0), "Kalafior", ProductType.STANDARD);
+		unavailableProduct = new Product(Id.generate(), new Money(150.0), "Por", ProductType.STANDARD);
 		addProductCommand = new AddProductCommand(Id.generate(), Id.generate(), 1);
 		client = new Client();
 		date = new Date();
 		clientData = new ClientData(Id.generate(), "John Doe");
-		reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED, clientData, new Date());		
-		product = new Product(Id.generate(), new Money(50.0), "Kalafior", ProductType.STANDARD);
+		reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED, clientData, new Date());			
 		
 		Whitebox.setInternalState(addProductCommandHandler, "reservationRepository", mockedReservationRepository);
 		Whitebox.setInternalState(addProductCommandHandler, "productRepository", mockedProductRepository);
@@ -64,5 +71,48 @@ public class AddProductCommandHandlerTests {
 		
 		when(mockedReservationRepository.load(addProductCommand.getOrderId())).thenReturn(reservation);		
 	}
+	
+	@Test
+    public void handleShouldInvokeLoadMethodOfReservationRepositoryOnce() {
+        when(mockedProductRepository.load(Mockito.<Id>any())).thenReturn(availableProduct);
+        addProductCommandHandler.handle(addProductCommand);
+        verify(mockedReservationRepository, times(1)).load(Mockito.<Id>any());
+    }
+
+    @Test
+    public void handleShouldInvokeLoadMethodOfProductRepositoryOnce() {
+        when(mockedProductRepository.load(Mockito.<Id>any())).thenReturn(availableProduct);
+        addProductCommandHandler.handle(addProductCommand);
+        verify(mockedProductRepository, times(1)).load(Mockito.<Id>any());
+    }
+
+    @Test
+    public void handleForAvailableProductShouldNotInvokeLoadMethodOfSuggestionService() {
+        when(mockedProductRepository.load(Mockito.<Id>any())).thenReturn(availableProduct);
+        addProductCommandHandler.handle(addProductCommand);
+        verify(mockedSuggestionService, times(0)).suggestEquivalent(Mockito.<Product>any(), Mockito.<Client>any());
+    }
+
+    @Test
+    public void handleForNonAvailableProductShouldInvokeLoadMethodOfSuggestionServiceOnce() {
+        when(mockedProductRepository.load(Mockito.<Id>any())).thenReturn(unavailableProduct);
+        addProductCommandHandler.handle(addProductCommand);
+        verify(mockedSuggestionService, times(1)).suggestEquivalent(Mockito.<Product>any(), Mockito.<Client>any());
+    }
+
+    @Test
+    public void reservationShouldContainProductFromCommandAfterInvokingHandle() {
+        when(mockedProductRepository.load(Mockito.<Id>any())).thenReturn(availableProduct);
+        addProductCommandHandler.handle(addProductCommand);
+        assertThat(reservation.contains(availableProduct), is(true));
+    }
+
+
+    @Test
+    public void handleShouldInvokeSaveMethodOfReservationRepositoryOnce() {
+        when(mockedProductRepository.load(Mockito.<Id>any())).thenReturn(availableProduct);
+        addProductCommandHandler.handle(addProductCommand);
+        verify(mockedReservationRepository, times(1)).save(Mockito.<Reservation>any());
+    }
 
 }
