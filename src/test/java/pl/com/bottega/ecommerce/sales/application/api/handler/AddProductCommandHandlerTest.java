@@ -58,14 +58,14 @@ public class AddProductCommandHandlerTest {
     }
 
     @Test
-    public void addingAnAvailableProductShouldGetReservationFromRepository() {
+    public void addingAProductShouldGetReservationFromRepository() {
         addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
 
         verify(reservationRepositoryMock, times(1)).load(any(Id.class));
     }
 
     @Test
-    public void addingAnAvailableProductShouldGetProductFromRepository() {
+    public void addingAProductShouldGetProductFromRepository() {
         addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
 
         verify(productRepositoryMock, times(1)).load(any(Id.class));
@@ -78,6 +78,12 @@ public class AddProductCommandHandlerTest {
         verify(suggestionServiceMock, never()).suggestEquivalent(any(Product.class), any(Client.class));
     }
 
+    @Test
+    public void addingAnAvailableProductShouldSaveTheReservation() {
+        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+
+        verify(reservationRepositoryMock, times(1)).save(any(Reservation.class));
+    }
 
     @Test
     public void addingANotAvailableProductShouldSuggestAProduct() {
@@ -91,5 +97,19 @@ public class AddProductCommandHandlerTest {
 
         addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
         verify(suggestionServiceMock, times(1)).suggestEquivalent(any(Product.class), any(Client.class));
+    }
+
+    @Test
+    public void addingANotAvailableProductShouldSaveTheReservation() {
+        product.markAsRemoved();
+        when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
+
+        client = new Client();
+        when(clientRepositoryMock.load(any(Id.class))).thenReturn(client);
+        when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
+        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD));
+
+        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        verify(reservationRepositoryMock, times(1)).save(any(Reservation.class));
     }
 }
