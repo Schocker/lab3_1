@@ -2,6 +2,7 @@ package pl.com.bottega.ecommerce.sales.application.api.handler;
 
 import org.junit.Before;
 import org.junit.Test;
+import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.application.api.command.AddProductCommand;
 import pl.com.bottega.ecommerce.sales.domain.client.Client;
@@ -12,11 +13,13 @@ import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductRepository;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sales.domain.reservation.Reservation;
+import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationBuilder;
 import pl.com.bottega.ecommerce.sales.domain.reservation.ReservationRepository;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 import pl.com.bottega.ecommerce.system.application.SystemContext;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -24,16 +27,16 @@ import static org.mockito.Mockito.*;
 public class AddProductCommandHandlerTest {
 
 
-    AddProductCommandHandler addProductCommandHandler;
-    ReservationRepository reservationRepository;
-    ProductRepository productRepository;
-    ClientRepository clientRepository;
-    SystemContext systemContext;
-    SuggestionService suggestionService;
-    Reservation reservation;
-    Product product;
-    Client client;
-    Field access;
+    private AddProductCommandHandler addProductCommandHandler;
+    private ReservationRepository reservationRepository;
+    private ProductRepository productRepository;
+    private ClientRepository clientRepository;
+    private SystemContext systemContext;
+    private SuggestionService suggestionService;
+    private Reservation reservation;
+    private Product product;
+    private Client client;
+    private Field access;
 
     @Before
     public void setUp() throws Exception {
@@ -43,12 +46,8 @@ public class AddProductCommandHandlerTest {
         clientRepository = mock( ClientRepository.class );
         systemContext = new SystemContext();
         suggestionService = mock( SuggestionService.class );
-        reservation = mock( Reservation.class );
+        reservation = new ReservationBuilder().build();
         product = new ProductBuilder()
-                .withId( Id.generate() )
-                .withName( "product" )
-                .withPrice( new Money( 12.3 ) )
-                .withProductType( ProductType.FOOD )
                 .build();
         client = mock( Client.class );
 

@@ -1,9 +1,9 @@
 package pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage;
 
 public class ClientDataBuilder {
-    private Id id;
+    private Id id = Id.generate();
 
-    private String name;
+    private String name = "client";
 
     public ClientDataBuilder(){
 

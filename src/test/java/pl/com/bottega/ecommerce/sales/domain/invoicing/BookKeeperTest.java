@@ -29,8 +29,6 @@ public class BookKeeperTest {
     public void setUp() throws Exception {
         bookKeeper = new BookKeeper( new InvoiceFactory() );
         clientData = new ClientDataBuilder()
-                .withId( Id.generate() )
-                .withName( "client" )
                 .build();
         invoiceRequest = new InvoiceRequest( clientData );
         price = new Money( 12.3 );
@@ -50,11 +48,6 @@ public class BookKeeperTest {
     public void invoiceRequestWithOneFieldShouldReturnInvoiceWithOneField() {
 
         ProductData productData = new ProductDataBuilder()
-                .withId( Id.generate() )
-                .withName( "product" )
-                .withPrice( new Money( 12.3 ) )
-                .withSnapshotDate( new Date( 1 ) )
-                .withType( ProductType.FOOD )
                 .build();
         RequestItem requestItem = new RequestItem( productData, 1, price );
 
@@ -74,18 +67,8 @@ public class BookKeeperTest {
     @Test
     public void invoiceRequestWithTwoFieldShouldCallCalculateTaxTwoTimes() {
         ProductData productData1 = new ProductDataBuilder()
-                .withId( Id.generate() )
-                .withName( "product1" )
-                .withPrice( new Money( 12.3 ) )
-                .withSnapshotDate( new Date( 1 ) )
-                .withType( ProductType.FOOD )
                 .build();
         ProductData productData2 = new ProductDataBuilder()
-                .withId( Id.generate() )
-                .withName( "product2" )
-                .withPrice( new Money( 12.3 ) )
-                .withSnapshotDate( new Date( 1 ) )
-                .withType( ProductType.FOOD )
                 .build();
         RequestItem requestItem1 = new RequestItem( productData1, 1, price );
         RequestItem requestItem2 = new RequestItem( productData2, 2, price );

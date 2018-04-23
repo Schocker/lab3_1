@@ -6,20 +6,20 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 import java.util.Date;
 
 public class ProductDataBuilder {
-    private Id productId;
-    private Money price;
+    private Id productId = Id.generate();
+    private Money price = new Money( 1 );
 
-    private String name;
+    private String name = "productData";
 
-    private Date snapshotDate;
+    private Date snapshotDate = new Date( 1 );
 
-    private ProductType type;
+    private ProductType type = ProductType.STANDARD;
 
     public ProductDataBuilder(){
 
     }
 
-    public ProductDataBuilder withId(Id id){
+    public ProductDataBuilder withId(Id id) {
         this.productId = id;
         return this;
     }
