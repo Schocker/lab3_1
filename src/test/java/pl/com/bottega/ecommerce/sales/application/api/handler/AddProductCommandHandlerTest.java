@@ -43,18 +43,25 @@ public class AddProductCommandHandlerTest {
     @Mock
     private SystemContext systemContextMock;
 
-    Reservation reservation;
-    Product product;
-    Client client;
+    private Product product;
+    private Client client;
 
     @Before
     public void setUp() {
-        reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED,
-                                new ClientData(Id.generate(), "Test"), new Date());
+        Reservation reservation = new Reservation(Id.generate(), Reservation.ReservationStatus.OPENED,
+                new ClientData(Id.generate(), "Test"), new Date());
         when(reservationRepositoryMock.load(any(Id.class))).thenReturn(reservation);
 
         product = new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD);
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
+
+        client = new Client();
+        when(clientRepositoryMock.load(any(Id.class))).thenReturn(client);
+
+        when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
+
+        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD));
+
     }
 
     @Test
@@ -89,11 +96,6 @@ public class AddProductCommandHandlerTest {
     public void addingANotAvailableProductShouldSuggestAProduct() {
         product.markAsRemoved();
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
-
-        client = new Client();
-        when(clientRepositoryMock.load(any(Id.class))).thenReturn(client);
-        when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
-        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD));
 
         addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
         verify(suggestionServiceMock, times(1)).suggestEquivalent(any(Product.class), any(Client.class));
