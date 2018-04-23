@@ -19,11 +19,11 @@ import static org.mockito.Mockito.*;
 
 public class BookKeeperTest {
 
-    TaxPolicy taxPolicy;
-    ClientData clientData;
-    InvoiceRequest invoiceRequest;
-    BookKeeper bookKeeper;
-    Money price;
+    private TaxPolicy taxPolicy;
+    private ClientData clientData;
+    private InvoiceRequest invoiceRequest;
+    private BookKeeper bookKeeper;
+    private Money price;
 
     @Before
     public void setUp() throws Exception {
