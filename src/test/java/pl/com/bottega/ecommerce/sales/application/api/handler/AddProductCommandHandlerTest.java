@@ -42,6 +42,8 @@ public class AddProductCommandHandlerTest {
     private ProductRepository productRepositoryMock;
     @Mock
     private SuggestionService suggestionServiceMock;
+    @Mock
+    private ClientRepository clientRepositoryMock;
 
 
     private Product product;
@@ -63,23 +65,12 @@ public class AddProductCommandHandlerTest {
         product = new Product(Id.generate(), new Money(10), "test product name", ProductType.FOOD);
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
 
-
-        ClientRepository clientRepository = new ClientRepository() {
-            @Override
-            public Client load(Id id) {
-                return new Client();
-            }
-
-            @Override
-            public void save(Client client) {
-            }
-
-        };
+        when(clientRepositoryMock.load(any(Id.class))).thenReturn(new Client());
 
         Whitebox.setInternalState(handler, "reservationRepository", reservationRepositoryMock);
         Whitebox.setInternalState(handler, "productRepository", productRepositoryMock);
         Whitebox.setInternalState(handler, "suggestionService", suggestionServiceMock);
-        Whitebox.setInternalState(handler, "clientRepository", clientRepository);
+        Whitebox.setInternalState(handler, "clientRepository", clientRepositoryMock);
         Whitebox.setInternalState(handler, "systemContext", new SystemContext());
     }
 
