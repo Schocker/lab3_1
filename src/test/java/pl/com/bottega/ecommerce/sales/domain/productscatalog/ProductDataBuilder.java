@@ -9,7 +9,7 @@ public class ProductDataBuilder {
 
     private Id id = Id.generate();
     private Money money;
-    private String name;
+    private String name = "test";
     private ProductType productType = ProductType.STANDARD;
     private Date date;
     

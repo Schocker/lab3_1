@@ -50,7 +50,6 @@ public class BookKeeperTest {
     public void requestingInvoiceWithOneItemShouldReturnInvoiceWithOneItem() {
         ProductData product = ProductDataBuilder.productData()
                 .withMoney(money)
-                .withName("test")
                 .build();
         RequestItem item = RequestItemBuilder.requestItem()
                 .withProductData(product)
@@ -65,7 +64,6 @@ public class BookKeeperTest {
     public void requestingInvoiceWithTwoItemsShouldCallCalculateTaxMethodTwoTimes() {
         ProductData product = ProductDataBuilder.productData()
                 .withMoney(money)
-                .withName("test")
                 .build();
         RequestItem item = RequestItemBuilder.requestItem()
                 .withProductData(product)
