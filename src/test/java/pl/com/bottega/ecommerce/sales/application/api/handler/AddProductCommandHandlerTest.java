@@ -73,18 +73,22 @@ public class AddProductCommandHandlerTest {
     
     @Test
     public void handlingAvailableProductShouldCallOnceSaveOnReservationRepository() {
-        AddProductCommand command = new AddProductCommand(new Id("1"), new Id("1"), 1);
+        AddProductCommand command = new AddProductCommand(anyId(), anyId(), 1);
         when(product.isAvailable()).thenReturn(true);
         addProductCommandHandler.handle(command);
-        verify(reservationRepository, times(1)).save(any(Reservation.class));
+        verify(reservationRepository, times(1)).save(reservation);
     }
     
     @Test
     public void handlingNotAvailableProductShouldCallOnceSaveOnReservationRepository() {
-        AddProductCommand command = new AddProductCommand(new Id("1"), new Id("1"), 1);
+        AddProductCommand command = new AddProductCommand(anyId(), anyId(), 1);
         when(product.isAvailable()).thenReturn(false);
         addProductCommandHandler.handle(command);
-        verify(reservationRepository, times(1)).save(any(Reservation.class));
+        verify(reservationRepository, times(1)).save(reservation);
+    }
+    
+    private Id anyId() {
+        return new Id("1");
     }
     
 }
