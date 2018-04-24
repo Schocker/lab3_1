@@ -78,8 +78,8 @@ public class BookKeeperTest {
         assertThat(capturedArgumentProductType.get(1), is(ProductType.DRUG));
 
         List<Money> capturedArgumentMoney = argumentCaptorMoney.getAllValues();
-        assertThat(capturedArgumentMoney.get(0), is(new Money(100)));
-        assertThat(capturedArgumentMoney.get(1), is(new Money(150)));
+        assertThat(capturedArgumentMoney.get(0), is(new Money(10)));
+        assertThat(capturedArgumentMoney.get(1), is(new Money(10)));
     }
 
     @Test
