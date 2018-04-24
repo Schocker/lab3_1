@@ -54,7 +54,6 @@ public class BookKeeperTest {
                 .build();
         RequestItem item = RequestItemBuilder.requestItem()
                 .withProductData(product)
-                .withQuantity(1)
                 .withTotalCost(money)
                 .build();
         invoiceRequest.add(item);
@@ -68,24 +67,18 @@ public class BookKeeperTest {
                 .withMoney(money)
                 .withName("test")
                 .build();
-        ProductData product2 = ProductDataBuilder.productData()
-                .withMoney(money)
-                .withName("test2")
-                .build();
         RequestItem item = RequestItemBuilder.requestItem()
                 .withProductData(product)
-                .withQuantity(1)
                 .withTotalCost(money)
                 .build();
         RequestItem item2 = RequestItemBuilder.requestItem()
-                .withProductData(product2)
-                .withQuantity(1)
+                .withProductData(product)
                 .withTotalCost(money)
                 .build();
         invoiceRequest.add(item);
         invoiceRequest.add(item2);
         bookKeeper.issuance(invoiceRequest, taxPolicy);
-        verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
+        verify(taxPolicy, times(2)).calculateTax(product.getType(), money);
     }
     
     @Test
