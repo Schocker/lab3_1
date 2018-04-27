@@ -52,7 +52,7 @@ public class AddProductCommandHandlerTest {
                 new ClientData(Id.generate(), "Test"), new Date());
         when(reservationRepositoryMock.load(any(Id.class))).thenReturn(reservation);
 
-        product = new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD);
+        product = new ProductBuilder().build();
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
 
         client = new Client();
@@ -60,7 +60,7 @@ public class AddProductCommandHandlerTest {
 
         when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
 
-        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD));
+        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new ProductBuilder().build());
 
     }
 
@@ -109,7 +109,6 @@ public class AddProductCommandHandlerTest {
         client = new Client();
         when(clientRepositoryMock.load(any(Id.class))).thenReturn(client);
         when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
-        when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new Product(Id.generate(), new Money(1), "Test Product", ProductType.STANDARD));
 
         addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
         verify(reservationRepositoryMock, times(1)).save(any(Reservation.class));
