@@ -11,11 +11,20 @@ public class ProductBuilder {
     private String productName;
     private ProductType productType;
 
-    public ProductBuilder() {
+    public void withId(Id id) {
+        this.productId = id;
     }
 
-    public void withId(Id id) {
-        productId = id;
+    public void withPrice(Money productPrice) {
+        this.productPrice = productPrice;
+    }
+
+    public void withName(String name) {
+        this.productName = name;
+    }
+
+    public void withType(ProductType type) {
+        this.productType = type;
     }
 
     public Product build() {
