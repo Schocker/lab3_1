@@ -11,6 +11,13 @@ public class ProductBuilder {
     private String productName;
     private ProductType productType;
 
+    public ProductBuilder() {
+        productId = Id.generate();
+        productPrice = new Money(1);
+        productName = "Test product";
+        productType = ProductType.STANDARD;
+    }
+
     public void withId(Id id) {
         this.productId = id;
     }
