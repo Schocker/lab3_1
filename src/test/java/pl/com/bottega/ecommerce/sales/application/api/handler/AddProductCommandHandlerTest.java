@@ -61,33 +61,32 @@ public class AddProductCommandHandlerTest {
         when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
 
         when(suggestionServiceMock.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(new ProductBuilder().build());
-
     }
 
     @Test
     public void addingAProductShouldGetReservationFromRepository() {
-        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        addProductCommandHandler.handle(new AddProductCommandBuilder().build());
 
         verify(reservationRepositoryMock, times(1)).load(any(Id.class));
     }
 
     @Test
     public void addingAProductShouldGetProductFromRepository() {
-        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        addProductCommandHandler.handle(new AddProductCommandBuilder().build());
 
         verify(productRepositoryMock, times(1)).load(any(Id.class));
     }
 
     @Test
     public void addingAnAvailableProductShouldNotSuggestAProduct() {
-        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        addProductCommandHandler.handle(new AddProductCommandBuilder().build());
 
         verify(suggestionServiceMock, never()).suggestEquivalent(any(Product.class), any(Client.class));
     }
 
     @Test
     public void addingAnAvailableProductShouldSaveTheReservation() {
-        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        addProductCommandHandler.handle(new AddProductCommandBuilder().build());
 
         verify(reservationRepositoryMock, times(1)).save(any(Reservation.class));
     }
@@ -97,7 +96,7 @@ public class AddProductCommandHandlerTest {
         product.markAsRemoved();
         when(productRepositoryMock.load(any(Id.class))).thenReturn(product);
 
-        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        addProductCommandHandler.handle(new AddProductCommandBuilder().build());
         verify(suggestionServiceMock, times(1)).suggestEquivalent(any(Product.class), any(Client.class));
     }
 
@@ -110,7 +109,7 @@ public class AddProductCommandHandlerTest {
         when(clientRepositoryMock.load(any(Id.class))).thenReturn(client);
         when(systemContextMock.getSystemUser()).thenReturn(new SystemUser(Id.generate()));
 
-        addProductCommandHandler.handle(new AddProductCommand(Id.generate(), Id.generate(), 1));
+        addProductCommandHandler.handle(new AddProductCommandBuilder().build());
         verify(reservationRepositoryMock, times(1)).save(any(Reservation.class));
     }
 }
