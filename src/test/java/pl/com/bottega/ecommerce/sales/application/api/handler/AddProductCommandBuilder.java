@@ -9,6 +9,9 @@ public class AddProductCommandBuilder {
     private int quantity;
 
     public AddProductCommandBuilder() {
+        orderId = Id.generate();
+        productId = Id.generate();
+        quantity = 1;
     }
 
     public void withOrderId(Id orderId) {
